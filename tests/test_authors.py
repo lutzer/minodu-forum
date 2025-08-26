@@ -17,9 +17,9 @@ def set_test_database_url(monkeypatch):
 # Create test client
 client = TestClient(app)
 
-def create_author():
+def create_author(name: str = "test"):
     author_data = {
-        "name": "test",
+        "name": name,
         "avatar" : "test"
     }
     response = client.post(app.root_path + "/authors/", json=author_data)

@@ -22,8 +22,8 @@ client = TestClient(app)
 def create_post(author_id: int, title: str):
     post_data = {
         "title": title,
-        "content" : "content",
-        "author_id": author_id
+        "author_id": author_id,
+        "content" : "content"
     }
     response = client.post(app.root_path + "/posts/", json=post_data)
     return response.json()

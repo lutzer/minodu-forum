@@ -2,13 +2,12 @@ import os
 from fastapi import FastAPI, UploadFile, HTTPException
 from pydantic import BaseModel
 from fastapi.responses import StreamingResponse
-from fastapi import Form
 
 from .database import db_connection
 
 from .routers import posts
 
-api_prefix = os.getenv('API_PREFIX', "/services")
+api_prefix = os.getenv('API_PREFIX', "/forum")
 
 # Initialize FastAPI app with root_path prefix
 app = FastAPI(root_path=api_prefix)

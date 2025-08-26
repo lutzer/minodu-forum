@@ -8,6 +8,7 @@ from .database import get_db_connection
 
 from .routers import posts
 from .routers import authors
+from .routers import files
 
 API_PREFIX = os.getenv('API_PREFIX', "/forum")
 
@@ -22,6 +23,7 @@ app = FastAPI(root_path=API_PREFIX, lifespan=lifespan)
 
 app.include_router(posts.router, prefix="/posts", tags=["posts"])
 app.include_router(authors.router, prefix="/authors", tags=["authors"])
+app.include_router(files.router, prefix="/files", tags=["files"])
 
 @app.get("/")
 async def root():

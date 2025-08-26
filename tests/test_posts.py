@@ -28,7 +28,7 @@ def create_post(author_id: int, title: str):
     response = client.post(app.root_path + "/posts/", json=post_data)
     return response.json()
 
-class TestPostsApu:
+class TestPostsApi:
     def test_create_post(self):
         author = create_author()
 

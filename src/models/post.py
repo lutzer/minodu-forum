@@ -9,11 +9,14 @@ class Post(Base):
     __tablename__ = "posts"
     
     id = Column(Integer, primary_key=True, index=True)
+    
     title = Column(String(200), nullable=False, index=True)
     content = Column(Text, nullable=False)
     published = Column(Boolean, default=False)
-    author_id = Column(Integer, ForeignKey('authors.id'), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    author_id = Column(Integer, ForeignKey('authors.id'), nullable=False)
+
     author = relationship("Author", back_populates="posts")
+    files = relationship('File', back_populates='post', uselist=True)

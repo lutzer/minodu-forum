@@ -26,8 +26,7 @@ async def get_authors(db: Session = Depends(get_db)):
 
 @router.post("/", response_model=AuthorResponse)
 async def create_author(author: AuthorCreate, db: Session = Depends(get_db)):
-
-    db_author = Author(**author.dict())
+    db_author = Author(**author.model_dump())
     db.add(db_author)
     db.commit()
     db.refresh(db_author)

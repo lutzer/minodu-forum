@@ -1,12 +1,12 @@
 import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from sqlalchemy import Column, Integer, String
 from contextlib import contextmanager
 from typing import Generator
+import logging
 
-DATABASE_URL =  os.getenv('DATABASE_URL', "sqlite:///./database.db")
+logger = logging.getLogger(__name__)
 
 Base = declarative_base()
 
@@ -56,7 +56,14 @@ class DatabaseConnection:
         self.engine.dispose()
 
 # Create global database connection instance
-db_connection = DatabaseConnection(DATABASE_URL)
+db_connection = None
+
+def get_db_connection():
+    global db_connection
+    if db_connection is None:
+        DATABASE_URL =  os.getenv('DATABASE_URL', "sqlite:///./database.db")
+        db_connection = DatabaseConnection(DATABASE_URL)
+    return db_connection
 
 # Dependency function for FastAPI
 def get_db() -> Generator[Session, None, None]:
@@ -64,7 +71,8 @@ def get_db() -> Generator[Session, None, None]:
     Database dependency for FastAPI routes.
     This function will be used with Depends() to inject database sessions.
     """
-    session = db_connection.get_session_direct()
+    
+    session = get_db_connection().get_session_direct()
     try:
         yield session
     finally:
@@ -75,5 +83,5 @@ def get_db_transaction() -> Generator[Session, None, None]:
     Database dependency with automatic transaction management.
     Use this for operations that need transaction safety.
     """
-    with db_connection.get_session() as session:
+    with get_db_connection().get_session() as session:
         yield session

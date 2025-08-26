@@ -34,12 +34,11 @@ async def get_posts(db: Session = Depends(get_db)):
 
 @router.post("/", response_model=PostResponse)
 async def create_post(post: PostCreate, db: Session = Depends(get_db)):
-
     author = db.query(Author).filter(Author.id == post.author_id).first()
     if not author:
         raise HTTPException(status_code=404, detail="Author not found")
 
-    db_post = Post(**post.dict())
+    db_post = Post(**post.model_dump())
     db.add(db_post)
     db.commit()
     db.refresh(db_post)

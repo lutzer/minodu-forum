@@ -17,6 +17,14 @@ def set_test_database_url(monkeypatch):
 # Create test client
 client = TestClient(app)
 
+def create_author():
+    author_data = {
+        "name": "test",
+        "avatar" : "test"
+    }
+    response = client.post(app.root_path + "/authors/", json=author_data)
+    return response.json()
+
 class TestAuthorsApi:
 
     def test_create_author(self):
@@ -30,13 +38,8 @@ class TestAuthorsApi:
         response_data = response.json()
         assert response_data["name"] == author_data["name"]
 
-    def test_fetch_author(self):
-        author_data = {
-            "name": "Author1",
-            "avatar" : "nothing"
-        }
-        response1 = client.post(app.root_path + "/authors/", json=author_data)        
-        assert response1.status_code == 200
+    def test_fetch_authors(self):
+        author_data = create_author()
 
         response2 = client.get(app.root_path + "/authors/")
         response2_data = response2.json()

@@ -5,19 +5,21 @@ import uuid
 import hashlib
 import mimetypes
 
-MAX_SIZE = 1024 * 1024 * 5
+from ..config import Config
 
 async def save_file(file: UploadFile, upload_directory: str) -> tuple:
     content = await file.read()
 
     # check file size
-    if file.size > MAX_SIZE:
-        raise Exception("File size too large. Max size is: " + MAX_SIZE)
+    if file.size > Config().max_file_size:
+        raise Exception("File size too large. Max size is: " + Config().max_file_size)
 
-    if not (file.content_type.startswith('image/') or file.content_type.startswith('audio/')):
+    if not (
+        file.content_type.startswith('image/') or 
+        file.content_type.startswith('audio/')
+    ):
         raise Exception("Wrong file type")
 
-    
     # Generate unique filename and path
     file_extension = os.path.splitext(file.filename)[1].lower()
     if not file_extension:

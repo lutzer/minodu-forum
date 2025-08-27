@@ -20,6 +20,7 @@ class Config:
         self._jwt_secret = None
         self._jwt_algorithm = None
         self._upload_dir = None
+        self._max_file_size = None
 
     @property
     def port(self):
@@ -57,4 +58,10 @@ class Config:
     def jwt_algorithm(self):
         if self._jwt_algorithm is None:
             self._jwt_algorithm = os.getenv("JWT_ALGORITHM", "HS256")
-        return self._jwt_algorithm      
+        return self._jwt_algorithm
+
+    @property
+    def max_file_size(self):
+        if self._max_file_size is None:
+            self._max_file_size = os.getenv("MAX_FILE_SIZE", 1024 * 1024 * 5)
+        return self._max_file_size        

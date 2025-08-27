@@ -33,6 +33,10 @@ class PostCreate(BaseModel):
     content: str
     parent_id: Optional[int] = None
 
+class PostEdit(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+
 class ThreadResponse(BaseModel):
     id: int
     title: str
@@ -65,3 +69,21 @@ async def create_post(post: PostCreate, db: Session = Depends(get_db), token_aut
     db.commit()
     db.refresh(db_post)
     return db_post
+
+@router.put("/{post_id}", response_model=PostResponse)
+async def create_post(post_id: int, new_data: PostEdit, db: Session = Depends(get_db), token_author_id: int = Depends(get_author_from_token)):
+    post = db.get(Post, post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    if post.author.id != token_author_id:
+        raise HTTPException(status_code=401)
+
+    # Update fields
+    for key, value in new_data.model_dump().items():
+        if value != None:
+            setattr(post, key, value)
+    
+    # commit changes
+    db.commit()
+    db.refresh(post)
+    return post

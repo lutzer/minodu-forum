@@ -101,6 +101,23 @@ class TestPostsApi:
         assert len(response_data[0]['children']) == 1
         assert len(response_data[1]['children']) == 2
 
+    def test_edit_post_title(self):
+        auth_token = create_author()
+        post = create_post(auth_token, "old")
+
+        post_id = post["id"]
+        post_data = {
+            "title": "updated"
+        }
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = client.put(app.root_path + f"/posts/{post_id}", json=post_data, headers=headers)        
+        
+        print(response.content)
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data["title"] == post_data["title"]
+
+
 
 
     

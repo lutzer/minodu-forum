@@ -49,3 +49,27 @@ class TestAuthorsApi:
         response2 = client.get(app.root_path + "/authors/")
         response2_data = response2.json()
         assert response2_data[0]["id"] == response1.json()["id"]
+
+    def test_edit_authors(self):
+        old_data = {
+            "name": "old_name",
+            "avatar" : "old_avatar"
+        }
+
+        response = client.post(app.root_path + "/authors/create", json=old_data)
+        token = response.json()['token']
+        author_id = response.json()['id']
+
+        new_data = {
+            "name": "new_name",
+            "avatar" : "new_avatar"
+        }
+
+        response = client.put(
+            app.root_path + f"/authors/{author_id}", 
+            json=new_data,
+            headers={"Authorization": f"Bearer {token}"})
+
+        assert response.status_code == 200
+        assert response.json()['name'] == new_data['name']
+        assert response.json()['avatar'] == new_data['avatar']

@@ -8,8 +8,11 @@ from ..database import get_db
 
 from ..models.file import File
 from ..models.post import Post
+from ..models.author import Author
 
 from .helpers import save_file, cleanup_file
+
+from .auth import get_author_from_token
 
 router = APIRouter()
 
@@ -21,6 +24,8 @@ class FileResponse(BaseModel):
     id: int
     filename: str
     file_path: str
+    content_type: str
+    file_hash: str
 
 class FileCreate(BaseModel):
     filename: str
@@ -36,10 +41,14 @@ async def get_files(db: Session = Depends(get_db)):
     return query.all()
 
 @router.post("/upload", response_model=FileResponse)
-async def upload_file(file: UploadFile, post_id: int = Form(...), db: Session = Depends(get_db)):
+async def upload_file(file: UploadFile, post_id: int = Form(...), db: Session = Depends(get_db), token_author_id: int = Depends(get_author_from_token)):
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
+
+    author = db.get(Author, post.author_id)
+    if author.id != token_author_id:
+        raise HTTPException(status_code=401)
     
     try:
         # Validate and save file
@@ -55,7 +64,6 @@ async def upload_file(file: UploadFile, post_id: int = Form(...), db: Session = 
             post_id=post_id
         )
 
-        
         db.add(db_file)
         db.commit()
         db.refresh(db_file)

@@ -7,6 +7,8 @@ from src.database import get_db_connection
 
 from .test_authors import create_author
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
 @pytest.fixture(autouse=True)
 def set_test_database_url(monkeypatch):
     # Set a test-specific database URL and create tables
@@ -19,39 +21,52 @@ def set_test_database_url(monkeypatch):
 # Create test client
 client = TestClient(app)
 
-def create_post(author_id: int, title: str):
+def create_post(token: str, title: str):
     post_data = {
         "title": title,
-        "author_id": author_id,
         "content" : "content"
     }
-    response = client.post(app.root_path + "/posts/", json=post_data)
+    headers = {"Authorization": f"Bearer {token}"}
+    response = client.post(app.root_path + "/posts/", json=post_data, headers=headers)   
     return response.json()
 
 class TestPostsApi:
     def test_create_post(self):
-        author = create_author()
+        auth_token = create_author()
 
         post_data = {
             "title": "title",
             "content" : "content",
-            "author_id": author["id"]
         }
-        response = client.post(app.root_path + "/posts/", json=post_data)        
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = client.post(app.root_path + "/posts/", json=post_data, headers=headers)        
         assert response.status_code == 200
 
         response_data = response.json()
         assert response_data["title"] == post_data["title"]
         assert response_data["content"] == post_data["content"]
+
+    def test_create_post_no_auth(self):
+        create_author()
+
+        post_data = {
+            "title": "title",
+            "content" : "content",
+        }
+        headers = {"Authorization": f"Bearer dslkfhksjdhfklsdjf23oj"}
+        response = client.post(app.root_path + "/posts/", json=post_data, headers=headers)        
+        assert response.status_code == 401
     
     def test_fetch_post(self):
-        author = create_author()
-        post = create_post(author['id'], "fetch_test")
+        auth_token = create_author()
+        post = create_post(auth_token, "fetch_test")
 
         response = client.get(app.root_path + "/posts/")        
         assert response.status_code == 200
 
         response_data = response.json()
         assert response_data[0]['title'] == post["title"]
+
+
 
     

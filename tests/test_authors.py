@@ -22,8 +22,8 @@ def create_author(name: str = "test"):
         "name": name,
         "avatar" : "test"
     }
-    response = client.post(app.root_path + "/authors/", json=author_data)
-    return response.json()
+    response = client.post(app.root_path + "/authors/create", json=author_data)
+    return response.json()["token"]
 
 class TestAuthorsApi:
 
@@ -32,15 +32,20 @@ class TestAuthorsApi:
             "name": "Author1",
             "avatar" : "nothing"
         }
-        response = client.post(app.root_path + "/authors/", json=author_data)        
+        response = client.post(app.root_path + "/authors/create", json=author_data)        
         assert response.status_code == 200
 
         response_data = response.json()
-        assert response_data["name"] == author_data["name"]
+        assert len(response_data["token"]) > 0
+        assert response_data["id"] >= 0
 
     def test_fetch_authors(self):
-        author_data = create_author()
+        author_data = {
+            "name": "test",
+            "avatar" : "test"
+        }
+        response1 = client.post(app.root_path + "/authors/create", json=author_data)
 
         response2 = client.get(app.root_path + "/authors/")
         response2_data = response2.json()
-        assert response2_data[0]["name"] == author_data["name"]
+        assert response2_data[0]["id"] == response1.json()["id"]

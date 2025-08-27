@@ -90,14 +90,16 @@ class TestPostsApi:
         auth_token = create_author()
         post1 = create_post(auth_token, "parent")
         post2 = create_post(auth_token, "parent")
-        reply = create_post(auth_token, "parent", post2["id"])
+        reply1 = create_post(auth_token, "child1", post2["id"])
+        reply2 = create_post(auth_token, "child2", post2["id"])
+        reply3 = create_post(auth_token, "child3", post1["id"])
        
         response = client.get(app.root_path + "/posts/threads")        
         assert response.status_code == 200
         response_data = response.json()
         assert len(response_data) == 2
-        assert len(response_data[0]['children']) == 0
-        assert len(response_data[1]['children']) == 1
+        assert len(response_data[0]['children']) == 1
+        assert len(response_data[1]['children']) == 2
 
 
 

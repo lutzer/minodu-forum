@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey
+from sqlalchemy import event, Column, Integer, String, Text, DateTime, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from ..database import Base
@@ -17,9 +17,9 @@ class Post(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    author_id = Column(Integer, ForeignKey('authors.id'), nullable=False)
+    author_id = Column(Integer, ForeignKey('authors.id'), nullable=True)
     parent_id = Column(Integer, ForeignKey('posts.id'), nullable=True, default=None)
 
     author = relationship("Author", back_populates="posts")
-    files = relationship('File', back_populates='post', uselist=True)
+    files = relationship('File', back_populates='post', uselist=True, cascade="all, delete-orphan")
     children = relationship("Post", uselist=True)

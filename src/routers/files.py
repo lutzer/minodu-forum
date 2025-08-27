@@ -87,8 +87,7 @@ async def delete_file(file_id: int, db: Session = Depends(get_db), token_author_
     if file.post.author.id != token_author_id:
         raise HTTPException(status_code=401)
 
-    try:
-        os.remove(file.file_path)
-    finally:
-        db.delete(file)
-        db.commit()
+    db.delete(file)
+    db.commit()
+    
+    return { "message" : "File deleted" }

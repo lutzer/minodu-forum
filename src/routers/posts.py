@@ -58,6 +58,13 @@ async def get_threads(db: Session = Depends(get_db)):
     query = db.query(Post).join(Author).options(joinedload(Post.files)).filter(Post.parent_id == None)
     return query.all()
 
+@router.get("/{post_id}", response_model=PostResponse)
+async def get_post(post_id: int, db: Session = Depends(get_db)):
+    post = db.get(Post, post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return post
+
 @router.post("/", response_model=PostResponse)
 async def create_post(post: PostCreate, db: Session = Depends(get_db), token_author_id: int = Depends(get_author_from_token)):
     author = db.query(Author).filter(Author.id == token_author_id).first()
@@ -102,3 +109,5 @@ async def delete_file(post_id: int, db: Session = Depends(get_db), token_author_
 
     db.delete(post)
     db.commit()
+
+    return { "msg" : "Post deleted." }

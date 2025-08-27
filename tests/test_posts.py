@@ -49,7 +49,7 @@ class TestPostsApi:
         response = client.post(app.root_path + "/posts/", json=post_data, headers=headers)        
         assert response.status_code == 401
     
-    def test_fetch_post(self):
+    def test_fetch_posts(self):
         auth_token = create_author()
         post = create_post(auth_token, "fetch_test")
 
@@ -58,6 +58,16 @@ class TestPostsApi:
 
         response_data = response.json()
         assert response_data[0]['title'] == post["title"]
+
+    def test_fetch_single_post(self):
+        auth_token = create_author()
+        post = create_post(auth_token, "fetch_test")
+
+        response = client.get(app.root_path + f"/posts/{post['id']}")        
+        assert response.status_code == 200
+
+        response_data = response.json()
+        assert response_data['title'] == post["title"]
 
     def test_reply_post(self):
         auth_token = create_author()

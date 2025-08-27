@@ -5,6 +5,7 @@ Backend for the minodu forum
 
 * check *src/config.py* to see what env vars can be changed
 * you need to supply a different *JWT_SECRET_KEY*
+* you probably want to supply a different *DATABASE_URL*
 
 ## Development
 

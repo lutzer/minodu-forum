@@ -21,10 +21,11 @@ def set_test_database_url(monkeypatch):
 # Create test client
 client = TestClient(app)
 
-def create_post(token: str, title: str):
+def create_post(token: str, title: str, parent_id: int = None):
     post_data = {
         "title": title,
-        "content" : "content"
+        "content" : "content",
+        "parent_id" : parent_id
     }
     headers = {"Authorization": f"Bearer {token}"}
     response = client.post(app.root_path + "/posts/", json=post_data, headers=headers)   
@@ -66,6 +67,37 @@ class TestPostsApi:
 
         response_data = response.json()
         assert response_data[0]['title'] == post["title"]
+
+    def test_reply_post(self):
+        auth_token = create_author()
+        post = create_post(auth_token, "parent")
+        
+        post_data = {
+            "title": "title",
+            "content" : "content",
+            "parent_id" : post["id"]
+        }
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = client.post(app.root_path + "/posts/", json=post_data, headers=headers)        
+        assert response.status_code == 200
+       
+        response = client.get(app.root_path + "/posts/")        
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data[1]['parent_id'] == post["id"]
+
+    def test_get_threads(self):
+        auth_token = create_author()
+        post1 = create_post(auth_token, "parent")
+        post2 = create_post(auth_token, "parent")
+        reply = create_post(auth_token, "parent", post2["id"])
+       
+        response = client.get(app.root_path + "/posts/threads")        
+        assert response.status_code == 200
+        response_data = response.json()
+        assert len(response_data) == 2
+        assert len(response_data[0]['children']) == 0
+        assert len(response_data[1]['children']) == 1
 
 
 

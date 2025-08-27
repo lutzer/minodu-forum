@@ -23,6 +23,7 @@ class PostResponse(BaseModel):
     content: str
     created_at: datetime
     updated_at: datetime
+    parent_id: Optional[int]
 
     author: AuthorResponse
     files: List[FileResponse]
@@ -30,15 +31,31 @@ class PostResponse(BaseModel):
 class PostCreate(BaseModel):
     title: str
     content: str
+    parent_id: Optional[int] = None
+
+class ThreadResponse(BaseModel):
+    id: int
+    title: str
+    content: str
+    created_at: datetime
+    updated_at: datetime
+
+    author: AuthorResponse
+    files: List[FileResponse]
+    children: List[PostResponse]
 
 @router.get("/", response_model=List[PostResponse])
 async def get_posts(db: Session = Depends(get_db)):
     query = db.query(Post).join(Author).options(joinedload(Post.files))
     return query.all()
 
+@router.get("/threads", response_model=List[ThreadResponse])
+async def get_threads(db: Session = Depends(get_db)):
+    query = db.query(Post).join(Author).options(joinedload(Post.files)).filter(Post.parent_id == None)
+    return query.all()
+
 @router.post("/", response_model=PostResponse)
 async def create_post(post: PostCreate, db: Session = Depends(get_db), token_author_id: int = Depends(get_author_from_token)):
-    
     author = db.query(Author).filter(Author.id == token_author_id).first()
     if not author:
         raise HTTPException(status_code=404, detail="Author not found")

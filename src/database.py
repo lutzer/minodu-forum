@@ -6,6 +6,8 @@ from contextlib import contextmanager
 from typing import Generator
 import logging
 
+from .config import Config
+
 logger = logging.getLogger(__name__)
 
 Base = declarative_base()
@@ -61,8 +63,7 @@ db_connection = None
 def get_db_connection():
     global db_connection
     if db_connection is None:
-        DATABASE_URL =  os.getenv('DATABASE_URL', "sqlite:///./database.db")
-        db_connection = DatabaseConnection(DATABASE_URL)
+        db_connection = DatabaseConnection(Config().database_url)
     return db_connection
 
 # Dependency function for FastAPI

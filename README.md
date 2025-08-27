@@ -3,14 +3,8 @@ Backend for the minodu forum
 
 ## Env Vars
 
-These env vars need to be defined
-```
-JWT_SECRET_KEY=?
-JWT_ALGORITHM=HS256
-DATABASE_URL=sqlite:///./database.db
-PORT=3001
-API_PREFIX=/forum"
-```
+* check *src/config.py* to see what env vars can be changed
+* you need to supply a different *JWT_SECRET_KEY*
 
 ## Development
 

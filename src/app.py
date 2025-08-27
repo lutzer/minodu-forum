@@ -10,7 +10,7 @@ from .routers import posts
 from .routers import authors
 from .routers import files
 
-API_PREFIX = os.getenv('API_PREFIX', "/forum")
+from .config import Config
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     yield
 
 # Initialize FastAPI app with root_path prefix
-app = FastAPI(root_path=API_PREFIX, lifespan=lifespan)
+app = FastAPI(root_path=Config().api_prefix, lifespan=lifespan)
 
 app.include_router(posts.router, prefix="/posts", tags=["posts"])
 app.include_router(authors.router, prefix="/authors", tags=["authors"])

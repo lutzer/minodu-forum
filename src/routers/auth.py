@@ -4,8 +4,7 @@ import time
 from fastapi import HTTPException, Security, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-SECRET_KEY = os.getenv('JWT_SECRET_KEY', "e13b50e9840a96608fa7539cc431645e")
-ALGORITHM = os.getenv('JWT_ALGORITHM', "HS256")
+from ..config import Config
 
 security = HTTPBearer()
 
@@ -13,7 +12,7 @@ def get_author_from_token(credentials: HTTPAuthorizationCredentials = Security(s
     """Verify and decode JWT token"""
     token = credentials.credentials
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, Config().jwt_secret, algorithms=[Config().jwt_algorithm])
         return payload["author_id"]
     except jwt.PyJWTError:
         raise HTTPException(
@@ -28,4 +27,4 @@ def generate_token(author_id: int):
         "author_id": author_id,
         "created": time.time()
     }
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(payload, Config().jwt_secret, algorithm=Config().jwt_algorithm)

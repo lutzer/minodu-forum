@@ -6,6 +6,8 @@ import os
 
 from ..database import get_db
 
+from ..config import Config
+
 from ..models.file import File
 from ..models.post import Post
 from ..models.author import Author
@@ -15,10 +17,6 @@ from .helpers import save_file, cleanup_file
 from .auth import get_author_from_token
 
 router = APIRouter()
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-
-UPLOAD_DIR = os.path.join(script_dir, "../../uploads/")
 
 class FileResponse(BaseModel):
     id: int
@@ -52,7 +50,7 @@ async def upload_file(file: UploadFile, post_id: int = Form(...), db: Session = 
     
     try:
         # Validate and save file
-        file_info = await save_file(file, UPLOAD_DIR)
+        file_info = await save_file(file, Config().upload_dir)
         
         # Create database record
         db_file = File(

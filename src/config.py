@@ -19,6 +19,7 @@ class Config:
         self._database_url = None
         self._jwt_secret = None
         self._jwt_algorithm = None
+        self._upload_dir = None
 
     @property
     def port(self):
@@ -31,6 +32,14 @@ class Config:
         if self._api_prefix is None:
             self._api_prefix = os.getenv("API_PREFIX", "/forum")
         return self._api_prefix
+    
+    @property
+    def upload_dir(self):
+        if self._upload_dir is None:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            upload_dir = os.getenv("UPLOAD_DIR", "uploads")
+            self._upload_dir = os.path.join(script_dir, "..", upload_dir)
+        return self._upload_dir
 
     @property
     def database_url(self):

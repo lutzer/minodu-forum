@@ -22,6 +22,4 @@ class Post(Base):
 
     author = relationship("Author", back_populates="posts")
     files = relationship('File', back_populates='post', uselist=True)
-    
-    children = relationship("Post", back_populates="parent", uselist=True)
-    parent = relationship("Post", remote_side=[id], back_populates="children")
+    children = relationship("Post", uselist=True)

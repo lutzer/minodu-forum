@@ -4,3 +4,4 @@ __pycache__
 uploads/*
 !uploads/.keep
 .env
+tests/tmp

@@ -5,15 +5,6 @@ from fastapi.testclient import TestClient
 from src.app import app
 from src.database import get_db_connection
 
-@pytest.fixture(autouse=True)
-def set_test_database_url(monkeypatch):
-    # Set a test-specific database URL and create tables
-    monkeypatch.setenv("DATABASE_URL", "sqlite:///./test_database.db")
-    get_db_connection().create_tables()
-    yield
-    #remove tables after tests
-    get_db_connection().drop_tables()
-
 # Create test client
 client = TestClient(app)
 

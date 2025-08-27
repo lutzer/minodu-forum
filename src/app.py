@@ -16,6 +16,7 @@ from .config import Config
 async def lifespan(app: FastAPI):
     """Initialize database on startup."""
     get_db_connection().create_tables()
+    print(Config().upload_dir)
     yield
 
 # Initialize FastAPI app with root_path prefix

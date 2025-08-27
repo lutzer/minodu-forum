@@ -26,6 +26,9 @@ async def save_file(file: UploadFile, upload_directory: str) -> tuple:
     unique_filename = f"{uuid.uuid4()}{file_extension}"
     
     file_path = os.path.join(upload_directory, unique_filename)
+
+    if not os.path.isdir(upload_directory):
+        os.makedirs(upload_directory)
     
     # Save file to disk
     async with aiofiles.open(file_path, 'wb') as f:
@@ -53,3 +56,4 @@ def cleanup_file(file_path: str):
         os.remove(file_path)
     except Exception as e:
         print(f"Warning: Could not delete file {file_path}: {e}")
+

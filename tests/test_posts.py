@@ -9,15 +9,6 @@ from .test_authors import create_author
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-@pytest.fixture(autouse=True)
-def set_test_database_url(monkeypatch):
-    # Set a test-specific database URL and create tables
-    monkeypatch.setenv("DATABASE_URL", "sqlite:///./test_database.db")
-    get_db_connection().create_tables()
-    yield
-    #remove tables after tests
-    get_db_connection().drop_tables()
-
 # Create test client
 client = TestClient(app)
 

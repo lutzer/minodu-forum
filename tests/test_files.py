@@ -14,19 +14,6 @@ import mimetypes
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-@pytest.fixture(autouse=True)
-def set_test_database_url(monkeypatch):
-    # Set a test-specific database URL and create tables
-    monkeypatch.setenv("DATABASE_URL", "sqlite:///./test_database.db")
-    get_db_connection().create_tables()
-    yield
-    #remove tables after tests
-    db = get_db_connection().get_session_direct()
-    files = db.query(File).all()
-    for file in files:
-        os.remove(file.file_path)
-    get_db_connection().drop_tables()
-
 # Create test client
 client = TestClient(app)
 
@@ -57,6 +44,7 @@ class TestFilesApi:
         assert response.status_code == 200
         data = response.json()
         assert data["content_type"].startswith("image")
+        assert os.path.isfile(data['file_path'])
     
     def test_upload_audio_file(self):
         auth_token = create_author()
@@ -73,6 +61,7 @@ class TestFilesApi:
         assert response.status_code == 200
         data = response.json()
         assert data["content_type"].startswith("audio")
+        assert os.path.isfile(data['file_path'])
 
     def test_upload_wrong_file(self):
         auth_token = create_author()

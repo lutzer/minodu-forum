@@ -1,10 +1,12 @@
 import jwt
+import os
 import time
 from fastapi import HTTPException, Security, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-SECRET_KEY="please_please_update_me_please"
-ALGORITHM="HS256"
+SECRET_KEY = os.getenv('JWT_SECRET_KEY', "e13b50e9840a96608fa7539cc431645e")
+ALGORITHM = os.getenv('JWT_ALGORYTHM', "HS256")
+
 security = HTTPBearer()
 
 def get_author_from_token(credentials: HTTPAuthorizationCredentials = Security(security)):

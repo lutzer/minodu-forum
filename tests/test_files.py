@@ -115,4 +115,36 @@ class TestFilesApi:
                 headers={"Authorization": f"Bearer {auth_token2}"}
             )
         assert response.status_code == 401
+
+    def test_delete_file(self):
+        auth_token = create_author()
+        post = create_post(auth_token, "fetch_test")
+
+        file_path = os.path.join(script_dir, "files/laura.jpeg")
+        file = upload_file(post['id'],file_path, auth_token)
+
+        assert os.path.isfile(file['file_path'])
+    
+        response = client.delete(
+            f"/files/{file['id']}",
+            headers={"Authorization": f"Bearer {auth_token}"}
+        )
+
+        assert response.status_code == 200
+        assert not os.path.isfile(file['file_path'])
+
+    def test_delete_file_restricted(self):
+        auth_token = create_author()
+        auth_token2 = create_author()
+        post = create_post(auth_token, "fetch_test")
+
+        file_path = os.path.join(script_dir, "files/laura.jpeg")
+        file = upload_file(post['id'],file_path, auth_token)
+    
+        response = client.delete(
+            f"/files/{file['id']}",
+            headers={"Authorization": f"Bearer {auth_token2}"}
+        )
+
+        assert response.status_code == 401
     

@@ -71,7 +71,7 @@ async def create_post(post: PostCreate, db: Session = Depends(get_db), token_aut
     return db_post
 
 @router.put("/{post_id}", response_model=PostResponse)
-async def create_post(post_id: int, new_data: PostEdit, db: Session = Depends(get_db), token_author_id: int = Depends(get_author_from_token)):
+async def edit_post(post_id: int, new_data: PostEdit, db: Session = Depends(get_db), token_author_id: int = Depends(get_author_from_token)):
     post = db.get(Post, post_id)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -87,3 +87,14 @@ async def create_post(post_id: int, new_data: PostEdit, db: Session = Depends(ge
     db.commit()
     db.refresh(post)
     return post
+
+@router.delete("/{post_id}")
+async def delete_file(post_id: int, db: Session = Depends(get_db), token_author_id: int = Depends(get_author_from_token)):
+    post = db.get(Post, post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    if post.author.id != token_author_id:
+        raise HTTPException(status_code=401)
+
+    db.delete(post)
+    db.commit()

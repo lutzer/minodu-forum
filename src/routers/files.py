@@ -80,3 +80,17 @@ async def upload_file(file: UploadFile, post_id: int = Form(...), db: Session = 
             status_code=500,
             detail=f"Failed to save image: {str(e)}"
         )
+
+@router.delete("/{file_id}")
+async def delete_file(file_id: int, db: Session = Depends(get_db), token_author_id: int = Depends(get_author_from_token)):
+    file = db.get(File, file_id)
+    if not file:
+        raise HTTPException(status_code=404, detail="File not found")
+    if file.post.author.id != token_author_id:
+        raise HTTPException(status_code=401)
+
+    try:
+        os.remove(file.file_path)
+    finally:
+        db.delete(file)
+        db.commit()

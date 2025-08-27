@@ -130,6 +130,31 @@ class TestPostsApi:
         
         assert response.status_code == 401
 
+    def test_delete_post(self):
+        auth_token = create_author()
+        post = create_post(auth_token, "test")
+
+        response = client.get(app.root_path + "/posts/")
+        assert len(response.json()) == 1
+
+        headers = {"Authorization": f"Bearer {auth_token}"}
+        response = client.delete(app.root_path + f"/posts/{post['id']}", headers=headers)        
+        
+        assert response.status_code == 200
+
+        response = client.get(app.root_path + "/posts/")
+        assert len(response.json()) == 0
+
+    def test_delete_post_restricted(self):
+        auth_token1 = create_author()
+        auth_token2 = create_author()
+        post = create_post(auth_token1, "test")
+
+        headers = {"Authorization": f"Bearer {auth_token2}"}
+        response = client.delete(app.root_path + f"/posts/{post['id']}", headers=headers)        
+        
+        assert response.status_code == 401
+
 
 
 

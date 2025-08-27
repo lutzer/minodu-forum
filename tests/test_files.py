@@ -100,4 +100,19 @@ class TestFilesApi:
         assert response.status_code == 200
         response_data = response.json()
         assert response_data[0]["files"][0]['filename'] == file["filename"]
+
+    def test_attach_file_restricted(self):
+        auth_token1 = create_author()
+        auth_token2 = create_author()
+        post = create_post(auth_token1, "fetch_test")
+
+        file_path = os.path.join(script_dir, "files/laura.jpeg")
+        with open(file_path, "rb") as f:
+            response = client.post(
+                "/files/upload",
+                files={"file": (os.path.basename(file_path), f, mimetypes.guess_type(file_path)[0])},
+                data={"post_id": post["id"]},
+                headers={"Authorization": f"Bearer {auth_token2}"}
+            )
+        assert response.status_code == 401
     

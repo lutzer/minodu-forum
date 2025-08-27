@@ -47,7 +47,7 @@ class TestPostsApi:
         assert response_data["title"] == post_data["title"]
         assert response_data["content"] == post_data["content"]
 
-    def test_create_post_no_auth(self):
+    def test_create_post_restricted(self):
         create_author()
 
         post_data = {
@@ -111,11 +111,24 @@ class TestPostsApi:
         }
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.put(app.root_path + f"/posts/{post_id}", json=post_data, headers=headers)        
-        
-        print(response.content)
+    
         assert response.status_code == 200
         response_data = response.json()
         assert response_data["title"] == post_data["title"]
+    
+    def test_edit_post_title_restricted(self):
+        auth_token1 = create_author()
+        auth_token2 = create_author()
+        post = create_post(auth_token1, "old")
+
+        post_id = post["id"]
+        post_data = {
+            "title": "updated"
+        }
+        headers = {"Authorization": f"Bearer {auth_token2}"}
+        response = client.put(app.root_path + f"/posts/{post_id}", json=post_data, headers=headers)        
+        
+        assert response.status_code == 401
 
 
 

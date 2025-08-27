@@ -95,6 +95,10 @@ async def delete_file(post_id: int, db: Session = Depends(get_db), token_author_
         raise HTTPException(status_code=404, detail="Post not found")
     if post.author.id != token_author_id:
         raise HTTPException(status_code=401)
+    if len(post.children) > 0:
+        raise HTTPException(
+            status_code=409, 
+            detail="Not allowed to delete post, because it has replies.")
 
     db.delete(post)
     db.commit()

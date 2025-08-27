@@ -155,6 +155,32 @@ class TestPostsApi:
         
         assert response.status_code == 401
 
+    def test_delete_parent_restricted(self):
+        auth_token = create_author()
+        post = create_post(auth_token, "parent")
+        reply = create_post(auth_token, "reply", post['id'])
+
+        response = client.delete(
+            app.root_path + f"/posts/{post['id']}", 
+            headers={"Authorization": f"Bearer {auth_token}"})        
+        
+        # dont allow deletion because it has children
+        assert response.status_code == 409
+
+        response = client.delete(
+            app.root_path + f"/posts/{reply['id']}", 
+            headers={"Authorization": f"Bearer {auth_token}"})        
+        
+        # delete reply
+        assert response.status_code == 200
+
+        response = client.delete(
+            app.root_path + f"/posts/{post['id']}", 
+            headers={"Authorization": f"Bearer {auth_token}"})        
+        
+        # now its allowed
+        assert response.status_code == 200
+
 
 
 

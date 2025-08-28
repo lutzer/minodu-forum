@@ -13,6 +13,14 @@ logger = logging.getLogger(__name__)
 Base = declarative_base()
 
 class DatabaseConnection:
+    _instance = None
+    
+    @classmethod
+    def get_instance(cls, database_url: str):
+        if cls._instance is None:
+            cls._instance = cls(database_url)
+        return cls._instance
+    
     def __init__(self, database_url : str):
         self.engine = create_engine(database_url)
         self.SessionLocal = sessionmaker(
@@ -57,14 +65,8 @@ class DatabaseConnection:
         """Close the engine and all connections."""
         self.engine.dispose()
 
-# Create global database connection instance
-db_connection = None
-
 def get_db_connection():
-    global db_connection
-    if db_connection is None:
-        db_connection = DatabaseConnection(Config().database_url)
-    return db_connection
+    return DatabaseConnection.get_instance(Config().database_url)
 
 # Dependency function for FastAPI
 def get_db() -> Generator[Session, None, None]:

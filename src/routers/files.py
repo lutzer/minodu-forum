@@ -25,13 +25,6 @@ class FileResponse(BaseModel):
     content_type: str
     file_hash: str
 
-class FileCreate(BaseModel):
-    filename: str
-    content_type: str
-    file_size: str
-    file_path: str
-    file_hash: str
-
 
 @router.get("/", response_model=List[FileResponse])
 async def get_files(db: Session = Depends(get_db)):

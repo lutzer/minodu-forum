@@ -1,7 +1,7 @@
 import pytest
 import os
 
-from src.database import get_db_connection
+from src.database import get_db_transaction, get_db_connection
 from src.models.file import File
 
 @pytest.fixture(autouse=True)
@@ -18,8 +18,7 @@ def set_test_database_url(monkeypatch):
     files = db.query(File).all()
     for file in files:
         os.remove(file.file_path)
-    
-    # Remove tables after tests
+
     get_db_connection().drop_tables()
 
     

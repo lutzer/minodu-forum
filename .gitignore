@@ -2,6 +2,6 @@
 *.db
 __pycache__
 uploads/*
-!uploads/.keep
+avatars/*
 .env
 tests/tmp

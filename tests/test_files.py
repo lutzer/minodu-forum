@@ -4,11 +4,10 @@ from fastapi.testclient import TestClient
 
 from src.app import app
 from src.database import get_db_connection, get_db
+from src.routers.helpers import get_upload_file_path
 
 from .test_authors import create_author
 from .test_posts import create_post
-
-from src.models.file import File
 
 import mimetypes
 
@@ -44,7 +43,7 @@ class TestFilesApi:
         assert response.status_code == 200
         data = response.json()
         assert data["content_type"].startswith("image")
-        assert os.path.isfile(data['file_path'])
+        assert os.path.isfile(get_upload_file_path(data["filename"]))
     
     def test_upload_audio_file(self):
         auth_token = create_author()
@@ -61,7 +60,7 @@ class TestFilesApi:
         assert response.status_code == 200
         data = response.json()
         assert data["content_type"].startswith("audio")
-        assert os.path.isfile(data['file_path'])
+        assert os.path.isfile(get_upload_file_path(data["filename"]))
 
     def test_upload_wrong_file(self):
         auth_token = create_author()
@@ -112,7 +111,7 @@ class TestFilesApi:
         file_path = os.path.join(script_dir, "files/laura.jpeg")
         file = upload_file(post['id'],file_path, auth_token)
 
-        assert os.path.isfile(file['file_path'])
+        assert os.path.isfile(get_upload_file_path(file['filename']))
     
         response = client.delete(
             f"/files/{file['id']}",
@@ -120,7 +119,7 @@ class TestFilesApi:
         )
 
         assert response.status_code == 200
-        assert not os.path.isfile(file['file_path'])
+        assert not os.path.isfile(get_upload_file_path(file['filename']))
 
     def test_delete_file_restricted(self):
         auth_token = create_author()
@@ -144,12 +143,12 @@ class TestFilesApi:
         file_path = os.path.join(script_dir, "files/laura.jpeg")
         file = upload_file(post['id'], file_path, auth_token)
         
-        assert os.path.isfile(file['file_path'])
+        assert os.path.isfile(get_upload_file_path(file['filename']))
 
         response = client.delete(
             f"/posts/{post['id']}",
             headers={"Authorization": f"Bearer {auth_token}"}
         )
         assert response.status_code == 200
-        assert not os.path.isfile(file['file_path'])
+        assert not os.path.isfile(get_upload_file_path(file['filename']))
     

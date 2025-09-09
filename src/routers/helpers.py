@@ -64,3 +64,11 @@ def cleanup_file(file_path: str):
     except Exception as e:
         print(f"Warning: Could not delete file {file_path}: {e}")
 
+
+def get_upload_file_path(filename: str):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(script_dir, "../..", Config().upload_dir, filename)
+
+def get_avatar_file_path(filename: str):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(script_dir, "../..", Config().avatar_dir, filename)

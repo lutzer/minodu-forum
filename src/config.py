@@ -27,7 +27,7 @@ class Config:
     @property
     def port(self):
         if self._port is None:
-            self._port = int(os.getenv("PORT", 3001))
+            self._port = int(os.getenv("PORT", 3002))
         return self._port
 
     @property
@@ -39,7 +39,7 @@ class Config:
     @property
     def service_url(self):
         if self._service_url is None:
-            self._service_url = os.getenv("AI_SERVICE_URL", "/services")
+            self._service_url = os.getenv("AI_SERVICE_URL", "http://localhost:3001/services")
         return self._service_url
     
     @property

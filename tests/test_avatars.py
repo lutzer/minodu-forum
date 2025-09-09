@@ -9,6 +9,8 @@ from src.models.avatar import Avatar
 
 import mimetypes
 
+from src.routers.helpers import get_avatar_file_path
+
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Create test client
@@ -35,7 +37,7 @@ class TestAvatarsApi:
         assert response.status_code == 200
         data = response.json()
         assert data["content_type"].startswith("image")
-        assert os.path.isfile(data['file_path'])
+        assert os.path.isfile(get_avatar_file_path(data['filename']))
 
     def test_fail_to_create_avatar_wrong_filetype(self):
         file_path = os.path.join(script_dir, "files/french_sample.mp3")
@@ -61,13 +63,13 @@ class TestAvatarsApi:
         file_path = os.path.join(script_dir, "files/laura.jpeg")
         avatar = create_avatar(file_path)
 
-        assert os.path.isfile(avatar['file_path'])
+        assert os.path.isfile(get_avatar_file_path(avatar['filename']))
     
         response = client.delete(
             f"/avatars/{avatar['id']}"
         )
 
         assert response.status_code == 200
-        assert not os.path.isfile(avatar['file_path'])
+        assert not os.path.isfile(get_avatar_file_path(avatar['filename']))
 
     

@@ -4,6 +4,8 @@ from datetime import datetime
 import os
 import logging
 
+from src.routers.helpers import get_avatar_file_path
+
 logger = logging.getLogger(__name__)
 
 from ..database import Base
@@ -16,7 +18,6 @@ class Avatar(Base):
     filename = Column(String(255), nullable=False)
     content_type = Column(String(100), nullable=False)
     file_size = Column(Integer, nullable=False)
-    file_path = Column(String(500), nullable=False)
     file_hash = Column(String(64), nullable=False, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -26,8 +27,9 @@ class Avatar(Base):
 @event.listens_for(Avatar, 'after_delete')
 def delete_file_after_delete(mapper, connection, target):
     """Delete the physical file after database record is deleted"""
-    if target.file_path and os.path.exists(target.file_path):
+    file_path = get_avatar_file_path(target.filename)
+    if os.path.exists(file_path):
         try:
-            os.remove(target.file_path)
+            os.remove(file_path)
         except OSError as e:
-            logger.error(f"Error deleting file {target.file_path}: {e}")
+            logger.error(f"Error deleting file {file_path}: {e}")

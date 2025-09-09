@@ -15,7 +15,7 @@ from ..models.author import Author
 
 from ..services.ai_services import transcribe_audio
 
-from .helpers import save_file, cleanup_file
+from .helpers import get_upload_file_path, save_file, cleanup_file
 
 from .auth import get_author_from_token
 
@@ -25,7 +25,6 @@ class FileResponse(BaseModel):
     id: int
     text: str
     filename: str
-    file_path: str
     content_type: str
     file_hash: str
 
@@ -61,7 +60,6 @@ async def upload_file(file: UploadFile, post_id: int = Form(...), db: Session = 
             filename=file_info["filename"],
             content_type=file_info["mime_type"],
             file_size=file_info["file_size"],
-            file_path=file_info["file_path"],
             file_hash=file_info["file_hash"],
             post_id=post_id
         )
@@ -74,7 +72,7 @@ async def upload_file(file: UploadFile, post_id: int = Form(...), db: Session = 
         if db_file.content_type.startswith("audio/"):
             threading.Thread(
                 target=transcribe_file_and_update_record, 
-                args=(db_file.file_path, db_file.id)
+                args=(get_upload_file_path(db_file.filename), db_file.id)
             ).start()
         
         return db_file

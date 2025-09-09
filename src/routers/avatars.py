@@ -17,7 +17,6 @@ router = APIRouter()
 class AvatarResponse(BaseModel):
     id: int
     filename: str
-    file_path: str
     content_type: str
     file_hash: str
 
@@ -39,7 +38,6 @@ async def create_avatar(file: UploadFile, db: Session = Depends(get_db)):
             filename=file_info["filename"],
             content_type=file_info["mime_type"],
             file_size=file_info["file_size"],
-            file_path=file_info["file_path"],
             file_hash=file_info["file_hash"],
         )
 

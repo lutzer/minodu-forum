@@ -1,3 +1,4 @@
+from functools import reduce
 from fastapi import UploadFile
 import os
 import aiofiles
@@ -7,17 +8,21 @@ import mimetypes
 
 from ..config import Config
 
-async def save_file(file: UploadFile, upload_directory: str) -> tuple:
+async def save_file(
+        file: UploadFile, 
+        upload_directory: str, 
+        allowed_mime_types: list[str] = ["image/", "audio/"]) -> tuple:
     content = await file.read()
 
     # check file size
     if file.size > Config().max_file_size:
         raise Exception("File size too large. Max size is: " + Config().max_file_size)
 
-    if not (
-        file.content_type.startswith('image/') or 
-        file.content_type.startswith('audio/')
-    ):
+    file_type_allowed = reduce(
+        lambda acc, val: acc or file.content_type.startswith(val),
+        allowed_mime_types,
+        False)
+    if not file_type_allowed:
         raise Exception("Wrong file type")
 
     # Generate unique filename and path

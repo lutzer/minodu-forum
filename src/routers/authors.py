@@ -6,30 +6,32 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 
 from ..models.author import Author
-from ..models.post import Post
+from ..models.avatar import Avatar
 
 from .auth import generate_token
 
 from .auth import get_author_from_token
+
+from .avatars import AvatarResponse
 
 router = APIRouter()
 
 class AuthorResponse(BaseModel):
     id: int
     name: str
-    avatar: str
+    avatar: Optional[AvatarResponse]
 
 class AuthorCreateResponse(BaseModel):
-    id: int
     token: str
+    id: int
 
 class AuthorCreate(BaseModel):
     name: str
-    avatar: str
+    avatar: Optional[int] =  None
 
 class AuthorEdit(BaseModel):
-    name: Optional[str]
-    avatar: Optional[str]
+    name: Optional[str] = None
+    avatar: Optional[int] = None
 
 @router.get("/", response_model=List[AuthorResponse])
 async def get_authors(db: Session = Depends(get_db)):
@@ -38,9 +40,18 @@ async def get_authors(db: Session = Depends(get_db)):
 
 @router.post("/create", response_model=AuthorCreateResponse)
 async def create_author(author: AuthorCreate, db: Session = Depends(get_db)):
-    
+    avatar = None
+    if author.avatar is not None:
+        avatar = db.query(Avatar).filter(Avatar.id == author.avatar).first()
+        if not avatar:
+            raise HTTPException(status_code=404, detail="Avatar not found")
+        
     # create author
-    db_author = Author(**author.model_dump())
+    db_author = Author(
+        name=author.name,
+        avatar_id=author.avatar
+    )
+
     db.add(db_author)
     db.commit()
     db.refresh(db_author)
@@ -62,9 +73,9 @@ async def edit_author(author_id: int, new_data: AuthorEdit, db: Session = Depend
         raise HTTPException(status_code=401)
 
     # Update fields
-    for key, value in new_data.model_dump().items():
-        if value != None:
-            setattr(author, key, value)
+    updated_data = new_data.model_dump(exclude_unset=True)
+    for key, value in updated_data.items():
+        setattr(author, key, value)
     
     # commit changes
     db.commit()

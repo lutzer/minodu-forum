@@ -38,6 +38,13 @@ async def get_authors(db: Session = Depends(get_db)):
     query = db.query(Author)
     return query.all()
 
+@router.get("/{author_id}", response_model=AuthorResponse)
+async def get_post(author_id: int, db: Session = Depends(get_db)):
+    author = db.get(Author, author_id)
+    if not author:
+        raise HTTPException(status_code=404, detail="Author not found")
+    return author
+
 @router.post("/create", response_model=AuthorCreateResponse)
 async def create_author(author: AuthorCreate, db: Session = Depends(get_db)):
     avatar = None
@@ -72,10 +79,17 @@ async def edit_author(author_id: int, new_data: AuthorEdit, db: Session = Depend
     if author.id != token_author_id:
         raise HTTPException(status_code=401)
 
-    # Update fields
+    # Validate avatar if provided
     updated_data = new_data.model_dump(exclude_unset=True)
-    for key, value in updated_data.items():
-        setattr(author, key, value)
+    if 'avatar' in updated_data:
+        avatar = db.query(Avatar).filter(Avatar.id == updated_data['avatar']).first()
+        if not avatar:
+            raise HTTPException(status_code=404, detail="Avatar not found")
+        author.avatar_id = updated_data['avatar']
+    
+    # Update other fields
+    if 'name' in updated_data:
+        author.name = updated_data['name']
     
     # commit changes
     db.commit()

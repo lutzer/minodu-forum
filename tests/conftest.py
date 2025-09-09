@@ -11,6 +11,7 @@ def set_test_database_url(monkeypatch):
     monkeypatch.setenv("DATABASE_URL", "sqlite:///./test_database.db")
     monkeypatch.setenv("UPLOAD_DIR", "tests/tmp")
     monkeypatch.setenv("AVATAR_UPLOAD_DIR", "tests/tmp")
+    monkeypatch.setenv("AI_SERVICE_URL", "http://0.0.0.0:3001/services")
     get_db_connection().create_tables()
     
     yield

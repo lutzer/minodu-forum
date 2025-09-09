@@ -20,7 +20,7 @@ router = APIRouter()
 class PostResponse(BaseModel):
     id: int
     title: str
-    content: str
+    text: str
     created_at: datetime
     updated_at: datetime
     parent_id: Optional[int]
@@ -30,17 +30,17 @@ class PostResponse(BaseModel):
 
 class PostCreate(BaseModel):
     title: str
-    content: str
+    text: str
     parent_id: Optional[int] = None
 
 class PostEdit(BaseModel):
     title: Optional[str] = None
-    content: Optional[str] = None
+    text: Optional[str] = None
 
 class ThreadResponse(BaseModel):
     id: int
     title: str
-    content: str
+    text: str
     created_at: datetime
     updated_at: datetime
 

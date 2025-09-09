@@ -15,7 +15,7 @@ client = TestClient(app)
 def create_post(token: str, title: str, parent_id: int = None):
     post_data = {
         "title": title,
-        "content" : "content",
+        "text" : "content",
         "parent_id" : parent_id
     }
     headers = {"Authorization": f"Bearer {token}"}
@@ -28,7 +28,7 @@ class TestPostsApi:
 
         post_data = {
             "title": "title",
-            "content" : "content",
+            "text" : "content",
         }
         headers = {"Authorization": f"Bearer {auth_token}"}
         response = client.post(app.root_path + "/posts/", json=post_data, headers=headers)        
@@ -36,14 +36,14 @@ class TestPostsApi:
 
         response_data = response.json()
         assert response_data["title"] == post_data["title"]
-        assert response_data["content"] == post_data["content"]
+        assert response_data["text"] == post_data["text"]
 
     def test_create_post_restricted(self):
         create_author()
 
         post_data = {
             "title": "title",
-            "content" : "content",
+            "text" : "content",
         }
         headers = {"Authorization": f"Bearer dslkfhksjdhfklsdjf23oj"}
         response = client.post(app.root_path + "/posts/", json=post_data, headers=headers)        
@@ -75,7 +75,7 @@ class TestPostsApi:
         
         post_data = {
             "title": "title",
-            "content" : "content",
+            "text" : "content",
             "parent_id" : post["id"]
         }
         headers = {"Authorization": f"Bearer {auth_token}"}

@@ -21,6 +21,8 @@ class Config:
         self._jwt_algorithm = None
         self._upload_dir = None
         self._max_file_size = None
+        self._service_url = None
+        self._avatar_dir = None
 
     @property
     def port(self):
@@ -35,6 +37,12 @@ class Config:
         return self._api_prefix
     
     @property
+    def service_url(self):
+        if self._service_url is None:
+            self._service_url = os.getenv("AI_SERVICE_URL", "/services")
+        return self._service_url
+    
+    @property
     def upload_dir(self):
         if self._upload_dir is None:
             script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -47,8 +55,8 @@ class Config:
         if self._upload_dir is None:
             script_dir = os.path.dirname(os.path.abspath(__file__))
             upload_dir = os.getenv("AVATAR_UPLOAD_DIR", "avatars")
-            self._upload_dir = os.path.join(script_dir, "..", upload_dir)
-        return self._upload_dir
+            self._avatar_dir = os.path.join(script_dir, "..", upload_dir)
+        return self._avatar_dir
 
     @property
     def database_url(self):

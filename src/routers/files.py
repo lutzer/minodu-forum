@@ -58,6 +58,10 @@ async def upload_file(file: UploadFile, post_id: int = Form(...), db: Session = 
         db.add(db_file)
         db.commit()
         db.refresh(db_file)
+
+        # transcribe audio
+        # if db_file.content_type.startswith("audio/"):
+        #     print("audio")
         
         return db_file
         

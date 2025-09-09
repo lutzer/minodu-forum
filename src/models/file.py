@@ -20,11 +20,9 @@ class File(Base):
     file_hash = Column(String(64), nullable=False, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-
     post_id = Column(Integer, ForeignKey('posts.id'), nullable=False)
 
     post = relationship("Post", back_populates="files")
-
 
 # Event listener for after delete
 @event.listens_for(File, 'after_delete')

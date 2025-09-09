@@ -3,14 +3,17 @@ from pydantic import BaseModel
 from typing import List, Optional
 from sqlalchemy.orm import Session
 import os
+import threading
 
-from ..database import get_db
+from ..database import get_db, get_db_session
 
 from ..config import Config
 
 from ..models.file import File
 from ..models.post import Post
 from ..models.author import Author
+
+from ..services.ai_services import transcribe_audio
 
 from .helpers import save_file, cleanup_file
 
@@ -20,6 +23,7 @@ router = APIRouter()
 
 class FileResponse(BaseModel):
     id: int
+    text: str
     filename: str
     file_path: str
     content_type: str
@@ -30,6 +34,13 @@ class FileResponse(BaseModel):
 async def get_files(db: Session = Depends(get_db)):
     query = db.query(File)
     return query.all()
+
+@router.get("/{file_id}", response_model=FileResponse)
+async def get_file(file_id: int, db: Session = Depends(get_db)):
+    file = db.get(File, file_id)
+    if not file:
+        raise HTTPException(status_code=404, detail="File not found")
+    return file
 
 @router.post("/upload", response_model=FileResponse)
 async def upload_file(file: UploadFile, post_id: int = Form(...), db: Session = Depends(get_db), token_author_id: int = Depends(get_author_from_token)):
@@ -60,8 +71,11 @@ async def upload_file(file: UploadFile, post_id: int = Form(...), db: Session = 
         db.refresh(db_file)
 
         # transcribe audio
-        # if db_file.content_type.startswith("audio/"):
-        #     print("audio")
+        if db_file.content_type.startswith("audio/"):
+            threading.Thread(
+                target=transcribe_file_and_update_record, 
+                args=(db_file.file_path, db_file.id)
+            ).start()
         
         return db_file
         
@@ -88,3 +102,12 @@ async def delete_file(file_id: int, db: Session = Depends(get_db), token_author_
     db.commit()
     
     return { "message" : "File deleted" }
+
+def transcribe_file_and_update_record(file_path: str, file_id: int):
+    result = transcribe_audio(file_path)
+    if result != None:
+        with get_db_session() as db:
+            file = db.get(File, file_id)
+            if file != None:
+                file.text = result
+                db.commit()

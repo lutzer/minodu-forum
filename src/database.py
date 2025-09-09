@@ -36,23 +36,6 @@ class DatabaseConnection:
     def drop_tables(self):
         """Drop all tables defined in Base metadata."""
         Base.metadata.drop_all(bind=self.engine)
-
-    @contextmanager
-    def get_session(self) -> Generator[Session, None, None]:
-        """
-        Context manager for database sessions.
-        Automatically handles session lifecycle and rollback on errors.
-        """
-        session = self.SessionLocal()
-        try:
-            yield session
-            session.commit()
-        except Exception as e:
-            session.rollback()
-            self.logger.error(f"Database session error: {e}")
-            raise
-        finally:
-            session.close()
     
     def get_session_direct(self) -> Session:
         """
@@ -80,6 +63,16 @@ def get_db() -> Generator[Session, None, None]:
         yield session
     finally:
         session.close()
+
+@contextmanager
+def get_db_session():
+    """Context manager for database sessions outside FastAPI"""
+    db_gen = get_db()
+    session = next(db_gen)
+    try:
+        yield session
+    finally:
+        db_gen.close()
 
 def get_db_transaction() -> Generator[Session, None, None]:
     """

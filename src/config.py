@@ -39,7 +39,7 @@ class Config:
     @property
     def service_url(self):
         if self._service_url is None:
-            self._service_url = os.getenv("AI_SERVICE_URL", "http://localhost:3001/services")
+            self._service_url = os.getenv("AI_SERVICE_URL", "http://localhost/services")
         return self._service_url
     
     @property

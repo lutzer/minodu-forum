@@ -1,6 +1,8 @@
 # minodu-forum
 Backend for the minodu forum
 
+Deprecated, new repo can be found here: https://github.com/lutzer/minodu
+
 ## Env Vars
 
 * check *src/config.py* to see what env vars can be changed
